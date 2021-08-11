@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 import 'carousel_controller.dart';
 import 'carousel_options.dart';
@@ -34,11 +35,14 @@ class CarouselSlider extends StatefulWidget {
 
   final int? itemCount;
 
+  final int preloadCount;
+
   CarouselSlider(
       {required this.items,
       required this.options,
       carouselController,
-      Key? key})
+      Key? key,
+      this.preloadCount = 3})
       : itemBuilder = null,
         itemCount = items != null ? items.length : 0,
         _carouselController = carouselController ??
@@ -51,7 +55,8 @@ class CarouselSlider extends StatefulWidget {
       required this.itemBuilder,
       required this.options,
       carouselController,
-      Key? key})
+      Key? key,
+      this.preloadCount = 3})
       : items = null,
         _carouselController = carouselController ??
             CarouselController() as CarouselControllerImpl,
@@ -70,7 +75,7 @@ class CarouselSliderState extends State<CarouselSlider>
 
   CarouselState? carouselState;
 
-  PageController? pageController;
+  PreloadPageController? pageController;
 
   /// mode is related to why the page is being changed
   CarouselPageChangedReason mode = CarouselPageChangedReason.controller;
@@ -87,7 +92,7 @@ class CarouselSliderState extends State<CarouselSlider>
     carouselState!.itemCount = widget.itemCount;
 
     // pageController needs to be re-initialized to respond to state changes
-    pageController = PageController(
+    pageController = PreloadPageController(
       viewportFraction: options.viewportFraction,
       initialPage: carouselState!.realPage,
     );
@@ -113,7 +118,7 @@ class CarouselSliderState extends State<CarouselSlider>
         : carouselState!.initialPage;
     handleAutoPlay();
 
-    pageController = PageController(
+    pageController = PreloadPageController(
       viewportFraction: options.viewportFraction,
       initialPage: carouselState!.realPage,
     );
@@ -263,7 +268,8 @@ class CarouselSliderState extends State<CarouselSlider>
 
   @override
   Widget build(BuildContext context) {
-    return getGestureWrapper(PageView.builder(
+    return getGestureWrapper(PreloadPageView.builder(
+      preloadPagesCount: widget.preloadCount,
       physics: widget.options.scrollPhysics,
       scrollDirection: widget.options.scrollDirection,
       pageSnapping: widget.options.pageSnapping,
